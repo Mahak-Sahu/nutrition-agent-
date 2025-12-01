@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriBot Agent</title>
+    <style>
+        /* --- 1. THE STYLE (CSS) --- */
+        /* This makes the app look pretty on your phone */
+        
+        :root {
+            --primary: #4CAF50; /* Fresh Green */
+            --bg: #f4f7f6;
+            --text: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px; /* Perfect width for phones */
+        }
+
+        /* Header Design */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        p {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Input Area Design */
+        .search-box {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.98); /* Button click effect */
+        }
+
+        /* Result Card Design */
+        #result-area {
+            margin-top: 20px;
+        }
+
+        .nutrition-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary);
+            animation: popIn 0.3s ease-out;
+        }
+
+        .nutrition-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-transform: capitalize;
+        }
+
+        .nutrient-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nutrient-row:last-child {
+            border-bottom: none;
+        }
+
+        .error-msg {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #ffcdd2;
+        }
+
+        /* Animation for results */
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🍏 NutriBot</h1>
+            <p>Your Personal Food AI Agent</p>
+        </header>
+
+        <section class="search-box">
+            <label for="foodInput">What did you eat?</label>
+            <input type="text" id="foodInput" placeholder="e.g., apple, rice, chicken">
+            <button onclick="analyzeFood()">Analyze Nutrition</button>
+        </section>
+
+        <div id="result-area">
+            <!-- Results will appear here magically -->
+        </div>
+    </div>
+
+    <script>
+        /* --- 2. THE BRAIN (JavaScript) --- */
+        /* This works exactly like your Python code, but for the web */
+
+        // The Database (Dictionary)
+        const foodDatabase = {
+            "apple": { calories: 52, protein: 0.3, carbs: 14, fat: 0.2 },
+            "banana": { calories: 96, protein: 1.2, carbs: 23, fat: 0.3 },
+            "rice": { calories: 130, protein: 2.7, carbs: 28, fat: 0.3 },
+            "egg": { calories: 155, protein: 13, carbs: 1.1, fat: 11 },
+            "chicken": { calories: 165, protein: 31, carbs: 0, fat: 3.6 },
+            "milk": { calories: 42, protein: 3.4, carbs: 5, fat: 1 },
+            "bread": { calories: 265, protein: 9, carbs: 49, fat: 3.2 },
+            "pizza": { calories: 266, protein: 11, carbs: 33, fat: 10 },
+            "carrot": { calories: 41, protein: 0.9, carbs: 10, fat: 0.2 }
+        };
+
+        // The Function
+        function analyzeFood() {
+            // 1. Get the text from the input box
+            const inputElement = document.getElementById("foodInput");
+            const resultArea = document.getElementById("result-area");
+            
+            // Clean the text (lowercase and remove spaces)
+            const foodName = inputElement.value.toLowerCase().trim();
+
+            // Clear previous results
+            resultArea.innerHTML = "";
+
+            if (foodName === "") {
+                return; // Do nothing if empty
+            }
+
+            // 2. Check if food exists in database
+            if (foodDatabase[foodName]) {
+                const data = foodDatabase[foodName];
+                
+                // Create the HTML for the success card
+                const cardHTML = `
+                    <div class="nutrition-card">
+                        <div class="nutrition-title">${foodName}</div>
+                        <div class="nutrient-row">
+                            <span>🔥 Calories</span>
+                            <strong>${data.calories} kcal</strong>
+                        </div>
+                        <div class="nutrient-row">
+                            <span>💪 Protein</span>
+                            <strong>${data.protein}g</strong>
+                        </div>
+                        <div class="nutrient-row">
+                            <span>🍞 Carbs</span>
+                            <strong>${data.carbs}g</strong>
+                        </div>
+                        <div class="nutrient-row">
+                            <span>💧 Fat</span>
+                            <strong>${data.fat}g</strong>
+                        </div>
+                    </div>
+                `;
+                resultArea.innerHTML = cardHTML;
+            } else {
+                // Show error message
+                resultArea.innerHTML = `
+                    <div class="error-msg">
+                        ❌ Sorry, I don't know the nutrition for "<strong>${foodName}</strong>" yet.
+                        <br><br>Try: apple, egg, or rice!
+                    </div>
+                `;
+            }
+        }
+
+        // Allow pressing "Enter" key to search
+        document.getElementById("foodInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                analyzeFood();
+            }
+        });
+
+    </script>
+</body>
+</html>
